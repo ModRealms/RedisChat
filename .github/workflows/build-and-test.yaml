@@ -38,7 +38,7 @@ jobs:
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
           cp gradle.properties.example gradle.properties
       - name: Build with Gradle
-        run: chmod ./gradlew && ./gradlew --build-cache --stacktrace assemble
+        run: chmod +x ./gradlew && ./gradlew --build-cache assemble --stacktrace
   test:
     needs: build
     runs-on: ubuntu-22.04
@@ -68,4 +68,4 @@ jobs:
           echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Test with Gradle
-        run: chmod ./gradlew && ./gradlew --stacktrace check
+        run: chmod +x ./gradlew && ./gradlew check --stacktrace
