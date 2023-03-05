@@ -1,0 +1,151 @@
+buildscript {
+    repositories {
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.21'
+    id "org.jetbrains.kotlin.jvm" version "1.8.10"
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+
+
+version = '1.18.2-0.0.1-SNAPSHOT'
+group = 'net.modrealms.' + project.name
+archivesBaseName = project.name
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+
+    runs {
+        Map<String, String> runProperties = new HashMap();
+        runProperties.put("forge.logging.markers", "registries")
+        runProperties.put("forge.logging.console.level", "debug")
+        runProperties.put("forge.enabledGameTestNamespaces", project.name)
+        client {
+            workingDirectory project.file('run')
+            properties runProperties
+
+            mods {
+                redischat {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file(property(project.name + '.run.location'))
+            properties runProperties
+
+            mods {
+                redischat {
+                    source sourceSets.main
+                }
+            }
+        }
+
+
+        data {
+            properties runProperties
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args '--mod', project.name, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                redischat {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    mavenCentral()
+    maven { url = "https://thedarkcolour.github.io/KotlinForForge/" }
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.1'
+    minecraftLibrary 'org.redisson:redisson:3.20.0'
+    implementation 'thedarkcolour:kotlinforforge:3.10.0'
+    shadow 'org.redisson:redisson:3.20.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shadow]
+    finalizedBy 'reobfShadowJar'
+    dependencies {
+        exclude(dependency('org.slf4j:.*'))
+        exclude(dependency('org.apache.commons:.*'))
+        exclude(dependency('com.google.code.gson:.*'))
+    }
+}
+
+jar {
+    archiveClassifier = 'slim'
+    manifest {
+        attributes([
+                "Specification-Title"     : project.name,
+                "Specification-Vendor"    : "modrealms",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "modrealms",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+assemble.dependsOn shadowJar
+jar.finalizedBy('reobfJar')
+
+reobf {
+    shadowJar {}
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = property("maven.releases.repo.url")
+            def snapshotsRepoUrl = property("maven.snapshots.repo.url")
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username property("maven.auth.username")
+                password property("maven.auth.password")
+            }
+        }
+    }
+}

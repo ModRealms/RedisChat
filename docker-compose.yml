@@ -1,0 +1,9 @@
+version: '3'
+services:
+  redis:
+    image: redis:latest
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    volumes:
+      - .docker/redis.conf:/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
