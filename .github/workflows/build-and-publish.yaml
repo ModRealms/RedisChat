@@ -3,7 +3,7 @@ name: Build, Test & Publish with Gradle
 on:
   push:
     branches: [ 'release/*' ]
-    tags-ignore: [ "*" ]
+    tags: [ "*" ]
 
 env:
   CACHE_REV: "1"
