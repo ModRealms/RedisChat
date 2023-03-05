@@ -20,7 +20,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 
 
-version = '1.18.2-0.0.1-SNAPSHOT'
+version = project("redischat.version")
 group = 'net.modrealms.' + project.name
 archivesBaseName = project.name
 
