@@ -2,7 +2,7 @@ name: Build, Test & Publish with Gradle
 
 on:
   push:
-    branches: [ 'main', 'develop' ]
+    branches: [ 'release/*' ]
     tags-ignore: [ "*" ]
 
 env:
@@ -98,13 +98,16 @@ jobs:
         run: |
           echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo $GITHUB_ENV
           cp gradle.properties.example gradle.properties
       - name: Publish Snapshot
-        if: github.ref == 'develop'
+        if: ${{ contains(github.ref_name, 'release/') }}
         run: |
-          CURRENT_VERSION=$(cat gradle.properties | grep "version" | cut -d'=' -f2)
-          chmod +x ./gradlew && ./gradlew -Dversion=${GITHUB_REF}-SNAPSHOT assemble --stacktrace
+          VERSION="$(echo '$GIT_BRANCH' | cut -d'_' -f2)"
+          echo $VERSION
+          chmod +x ./gradlew && ./gradlew -Dmod.version=$VERSION-SNAPSHOT assemble --stacktrace
       - name: Publish Release
-        if: github.ref == 'main'
+        if: github.ref_name == 'main' && github.ref_type == 'tag'
         run: |
-          chmod +x ./gradlew && ./gradlew assemble --stacktrace
+          
+          chmod +x ./gradlew && ./gradlew -Dmod.version=$GITHUB_REF_NAME assemble --stacktrace
