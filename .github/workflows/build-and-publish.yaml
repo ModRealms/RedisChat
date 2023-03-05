@@ -102,11 +102,9 @@ jobs:
       - name: Publish Snapshot
         if: ${{ contains(github.ref_name, 'release/') }}
         run: |
-          VERSION="$(echo '$GIT_BRANCH' | cut -d'/' -f2)"
-          echo "Branch Name: $VERSION"
-          chmod +x ./gradlew && ./gradlew -Dmod.version="${VERSION}-SNAPSHOT" publish --stacktrace
+          echo "Branch Name: $GIT_BRANCH"
+          chmod +x ./gradlew && ./gradlew -Dmod.version=$GIT_BRANCH-SNAPSHOT publish --stacktrace
       - name: Publish Release
         if: github.ref_name == 'main' && github.ref_type == 'tag'
         run: |
-          
           chmod +x ./gradlew && ./gradlew -Dmod.version=$GITHUB_REF_NAME publish --stacktrace
