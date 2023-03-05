@@ -105,8 +105,8 @@ jobs:
       - name: Publish Snapshot
         if: ${{ contains(github.ref_name, 'release/') }}
         run: |
-          chmod +x ./gradlew && ./gradlew "-Pmod.version=${GIT_BRANCH}-SNAPSHOT" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.username=${MAVEN_PASSWORD}" publish --stacktrace
+          chmod +x ./gradlew && ./gradlew "-Pmod.version=${GIT_BRANCH}-SNAPSHOT" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.password=${MAVEN_PASSWORD}" publish --stacktrace
       - name: Publish Release
         if: github.ref_name == 'main' && github.ref_type == 'tag'
         run: |
-          chmod +x ./gradlew && ./gradlew "-Pmod.version=$GITHUB_REF_NAME" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.username=${MAVEN_PASSWORD}" publish --stacktrace
+          chmod +x ./gradlew && ./gradlew "-Pmod.version=${GITHUB_REF_NAME}" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.password=${MAVEN_PASSWORD}" publish --stacktrace
