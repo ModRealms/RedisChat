@@ -2,6 +2,8 @@ kotlin.code.style=official
 org.gradle.daemon=true
 org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -XX:+UseParallelGC
 redischat.run.location=server/server1
+minecraft.version=1.18.2
+mod.version=0.0.0
 maven.releases.repo.url=https://repo.modrealms.net/repository/maven-releases/
 maven.snapshots.repo.url=https://repo.modrealms.net/repository/maven-snapshots/
 maven.auth.username=
