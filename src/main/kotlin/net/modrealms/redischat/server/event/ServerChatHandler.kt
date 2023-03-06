@@ -20,14 +20,13 @@ import java.time.Instant
 class ServerChatHandler {
 
     private val logger: Logger = LogUtils.getLogger()
-    private var serverName: String = ModConfiguration.get("messages.serverName")
 
     @SubscribeEvent
     fun onServerChat(event: ServerChatEvent) {
         event.isCanceled = true
         RedisChat.datastore.publishMessage(
             ChatMessage(
-                serverName,
+                ModConfiguration.get<String>("messages.serverName"),
                 event.username,
                 event.filteredMessage,
                 Instant.now().epochSecond
