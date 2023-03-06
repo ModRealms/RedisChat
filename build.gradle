@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 
 
 version = "${property("minecraft.version")}-${property("mod.version")}"
-group = 'net.modrealms.' + project.name
+group = 'net.modrealms'
 archivesBaseName = project.name
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -97,10 +97,12 @@ shadowJar {
     archiveClassifier = ''
     configurations = [project.configurations.shadow]
     finalizedBy 'reobfShadowJar'
+    minimize()
     dependencies {
         exclude(dependency('org.slf4j:.*'))
         exclude(dependency('org.apache.commons:.*'))
         exclude(dependency('com.google.code.gson:.*'))
+        exclude(dependency('io.netty:.*'))
     }
 }
 
@@ -130,10 +132,22 @@ reobf {
     shadowJar {}
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives shadowJar
+    archives sourcesJar
+}
+
+
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifact jar
+        library(MavenPublication) {
+            from components.java
+            artifact sourcesJar
         }
     }
     repositories {
